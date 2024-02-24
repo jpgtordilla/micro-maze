@@ -1,0 +1,15 @@
+Outline:
+* Maze class
+    * Generate a 2D maze array parameters of walls, spaces, player, and exit
+    * Key presses update player position in O(1)
+    * Count number of steps
+    * If steps is equal to a number between 10-20, start a mini game compilation instance (static method from MiniGame class)
+    * If the player is at the exit position, regenerate the maze, reset the player, and reset the steps
+* MiniGame class
+    * Static level counter
+    * Picks a random method to run from an array of levels
+    * For now, each method just has a print statement, and will later run a main class for each mini game
+* Main class
+    * Initialize how many levels and set level counter
+    * Loop which contains the level handler
+    * Calls an updateCurrentLevel() method in the Maze class which handles player position on Keyup
