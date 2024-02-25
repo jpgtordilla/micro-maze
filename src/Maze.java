@@ -1,6 +1,5 @@
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 /** Maze class
@@ -12,7 +11,7 @@ import java.util.*;
  */
 
 public class Maze {
-    private static String[][] mazeArr;
+    public static String[][] mazeArr;
     private static int playerPos;
     private int endPos;
     private Set<Integer> usedCoordinates;
@@ -74,6 +73,8 @@ public class Maze {
         // add player and goal
         mazeArr[0][0] = "P";
         mazeArr[MAZEDIM - 1][MAZEDIM - 1] = "G";
+        MazeGUI.playerX = 0;
+        MazeGUI.playerY = 29;
 
         // naive maze algorithm rules
         // - never have lines touch each other
@@ -251,11 +252,13 @@ public class Maze {
         }
         return null; // if no potential start point exists
     }
-    public void updateCurrentLevel() {
+    public static void updateCurrentLevel() {
         if (mazeArr[MAZEDIM -1][MAZEDIM -1].equals("P")) {
             playerPos = 0;
-            Maze newMaze = new Maze();
+            MazeGUI.playerX = 0;
+            MazeGUI.playerY = 29;
             Main.levelCounter++;
+            Maze newMaze = new Maze();
         }
     }
 
@@ -279,6 +282,7 @@ public class Maze {
                 // if not in the top row and not blocked by a wall
                 if (playerPos - MAZEDIM >= 0 && !isBlocked("UP")) {
                     step -= MAZEDIM;
+                    MazeGUI.playerY -= MazeGUI.OBJECTDIM;
                     numSteps++;
                 }
                 break;
@@ -286,6 +290,7 @@ public class Maze {
                 // if not in the bottom row and not blocked by a wall
                 if (playerPos + MAZEDIM < (MAZEDIM * MAZEDIM) && !isBlocked("DOWN")) {
                     step += MAZEDIM;
+                    MazeGUI.playerY += MazeGUI.OBJECTDIM;
                     numSteps++;
                 }
                 break;
@@ -293,6 +298,7 @@ public class Maze {
                 // in the case of 5x5: (4 + 1) % 5 == 0
                 if ((playerPos + 1) % MAZEDIM != 0 && !isBlocked("RIGHT")) { // if not in right column
                     step += 1;
+                    MazeGUI.playerX += MazeGUI.OBJECTDIM;
                     numSteps++;
                 }
                 break;
@@ -300,6 +306,7 @@ public class Maze {
                 // in the case of 5x5: 5 / 5 = 1
                 if (playerPos % MAZEDIM != 0 && !isBlocked("LEFT")) { // if not in left column
                     step -= 1;
+                    MazeGUI.playerX -= MazeGUI.OBJECTDIM;
                     numSteps++;
                 }
                 break;

@@ -12,9 +12,10 @@ public class MiniGame {
     }
     /** Runs a random mini-game */
     public void runRandomGame() {
-        String[] games = new String[]{"BALLS", "DROPS", "SHOOTER"};
+//        String[] games = new String[]{"BALLS", "DROPS", "SHOOTER"};
+        String[] games = new String[]{"BALLS"};
         Random r = new Random();
-        String game = games[r.nextInt(0, 3)];
+        String game = games[r.nextInt(0, games.length)];
         switch (game) {
             case "BALLS":
                 Balls balls = new Balls();
