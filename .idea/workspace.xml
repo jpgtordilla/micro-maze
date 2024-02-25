@@ -7,15 +7,9 @@
     <list default="true" id="c48a8fcc-e0b8-45b1-a3a8-a4154d4fe490" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/MazeGame/Balls.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/MazeGame/Balls.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/MazeGame/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/MazeGame/Main.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/MazeGame/Maze.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/MazeGame/Maze.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/MazeGame/MazeGUI.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/MazeGame/MazeGUI.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/MazeGame/MiniGame.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/MazeGame/MiniGame.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Balls.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Balls.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Maze.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Maze.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/MazeGUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/MazeGUI.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/MiniGame.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/MiniGame.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,7 +39,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "Application.Main.executor": "Run",
+    "Application.Main.executor": "Debug",
     "JUnit.Maze.addListItems.executor": "Run",
     "JUnit.Maze.testCreateNewLevelDrawLine.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
