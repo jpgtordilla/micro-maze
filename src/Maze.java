@@ -1,9 +1,7 @@
 import org.junit.jupiter.api.Test;
 
-import java.awt.*;
 import java.util.*;
 import java.util.List;
-
 /** Maze class
  * Generate a 2D maze array parameters of walls, spaces, player, and exit
  * Key presses update player position in O(1)
@@ -11,7 +9,6 @@ import java.util.List;
  * If steps is equal to a number between 10-20, start a mini-game compilation instance (static method from MiniGame class)
  * If the player is at the exit position, regenerate the maze, reset the player, and reset the steps
  */
-
 public class Maze {
     public static String[][] mazeArr;
     private static int playerPos;
@@ -19,15 +16,12 @@ public class Maze {
     private Set<Integer> usedCoordinates;
     private int EMPTYSPACES;
     public static int numSteps;
-    public static boolean runningMaze;
-
     // constants
     public static final int MAZEDIM = 20;
     private final int MINLENGTH = 2;
     private final int MAXLENGTH = 10;
     private Random r = new Random();
     public Maze() {
-        runningMaze = true;
         mazeArr = new String[MAZEDIM][MAZEDIM];
         for (int i = 0; i < MAZEDIM; i++) {
             for (int j = 0; j < MAZEDIM; j++) {
@@ -44,21 +38,18 @@ public class Maze {
         usedCoordinates.add(MAZEDIM);
         usedCoordinates.add((MAZEDIM * MAZEDIM) - 1);
         EMPTYSPACES = (MAZEDIM * MAZEDIM) - 2;
-
         // create a new level and stores player position
         createNewLevel();
         // drawLevel(); // comment in for testing
     }
-
-    /** converts from grid coordinates to digits
+    /** Converts from grid coordinates to digits
      * 0, 0 --> 0 */
     private int coordsToDigits(ArrayList<Integer> coords) {
         int row = coords.getFirst();
         int col = coords.getLast();
         return (row * MAZEDIM) + col;
     }
-
-    /** converts from digits to grid coordinates
+    /** Converts from digits to grid coordinates
      * 0 --> 0, 0 */
     private static int[] digitsToCoords(int digit) {
         // digit = row * MAZEDIM + col
@@ -69,20 +60,17 @@ public class Maze {
         int row = digit / MAZEDIM;
         return new int[]{row, col};
     }
-
-    /** generates a maze that can navigated by the player */
+    /** Generates a maze that can navigated by the player */
     private void createNewLevel() {
         // add player and goal
         mazeArr[0][0] = "P";
         mazeArr[MAZEDIM - 1][MAZEDIM - 1] = "G";
         MazeGUI.playerX = 0;
         MazeGUI.playerY = 29;
-
         // naive maze algorithm rules
         // - never have lines touch each other
         // - never generate lines longer than a certain length
         // - never generate a line that intersects with (0, 0) or (19, 19)
-
         // maze algorithm (general pseudocode)
         // - store a set of coordinates that a line cannot intersect
         // - generate a line length
@@ -93,7 +81,6 @@ public class Maze {
         // - create the line
         //      - depending on the direction, update the array and the set of coordinates
         // - repeat until empty spaces < some threshold
-
         // draw a new line on each iteration until the maze is sufficiently full
         while (EMPTYSPACES > 0) {
             int lineLength = generateLineLength();
@@ -156,7 +143,8 @@ public class Maze {
             }
         }
     }
-
+    /** Depending on direction of iteration, checks the blocks to its sides while generating
+     *  This method line excludes those additional spaces from future generation */
     private void checkAndAdd(boolean inXDirection, boolean flipped, int currentRow, int currentCol) {
         int inverter = 1;
         if (flipped) {
@@ -178,7 +166,8 @@ public class Maze {
             }
         }
     }
-
+    /** These helper methods convert verbal directions into an index that can be applied to 2D array math
+     *  This allows easier checking and iteration through the 2D array */
     private int getDirectionX(String lineDirection) {
         return switch (lineDirection) {
             case "left" -> -1;
@@ -186,7 +175,6 @@ public class Maze {
             default -> 0;
         };
     }
-
     private int getDirectionY(String lineDirection) {
         return switch (lineDirection) {
             case "up" -> -1;
@@ -194,7 +182,7 @@ public class Maze {
             default -> 0;
         };
     }
-
+    /** Generates the length for a line of wall blocks */
     private int generateLineLength() {
         return r.nextInt(MINLENGTH, MAXLENGTH + 1);
     }
@@ -203,7 +191,7 @@ public class Maze {
         int index = r.nextInt(0, directionArray.length);
         return directionArray[index];
     }
-
+    /** Generates a starting point for the line of wall blocks */
     private ArrayList<Integer> generateLineStart(int lineLength, String direction) {
         // determine which way to iterate and check for walls
         int xDirection = getDirectionX(direction);
@@ -251,17 +239,15 @@ public class Maze {
         }
         return null; // if no potential start point exists
     }
-    public void updateCurrentLevel() {
+    /** If the player is at the victory point, resets the level and player */
+    public void updateCurrentStage() {
         if (mazeArr[MAZEDIM - 1][MAZEDIM - 1].equals("P")) {
             mazeArr[MAZEDIM - 1][MAZEDIM - 1] = "G";
             Maze maze = new Maze();
-            maze.createNewLevel();
-            playerPos = 0;
-            Main.levelCounter++;
+            Main.stageCounter++;
         }
     }
-
-    /** prints out the 2D array as a CLI */
+    /** Prints out the 2D array as a CLI */
     public static void drawLevel() {
         for (int i = 0; i < MAZEDIM; i++) {
             for (int j = 0; j < MAZEDIM; j++) {
@@ -272,8 +258,9 @@ public class Maze {
             }
         }
     }
-
-    /** move player in the maze based on key input, feeds into MazeGUI handlers */
+    /** Move player in the maze based on key input, feeds into MazeGUI handlers
+     *  in a more-complicated game, getter and setter methods would be used instead of static variables for:
+     *  - playerPos, MAZEDIM, OBJECTDIM, playerX, playerY, numSteps, and the mazeArr */
     public static void handleMovement(String direction) {
         int step = 0;
         switch (direction) {
@@ -317,9 +304,9 @@ public class Maze {
         playerPos = playerPos + step; // update player position
         playerPosition = digitsToCoords(playerPos); // get new position
         mazeArr[playerPosition[0]][playerPosition[1]] = "P"; // draw new player marker
-        drawLevel();
+        // drawLevel(); // comment in for testing
     }
-
+    /** Helper method to check if the next block is filled with a wall */
     private static boolean isBlocked(String direction) {
         int step = 0;
         switch (direction) {
@@ -343,9 +330,6 @@ public class Maze {
         int col = coordsToCheck[1];
         return mazeArr[row][col].equals("X");
     }
-
-    /** TESTING */
-
     /** Testing maze generation */
     @Test
     public void testCreateNewLevelDrawLine() {

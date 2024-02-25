@@ -7,6 +7,7 @@ import java.util.Random;
 public class MazeGUI extends JFrame {
     public static int playerX = 5;
     public static int playerY = 29;
+    // constants
     public static final int OBJECTDIM = 40;
     public static final int goalX = 750;
     public static final int goalY = 789;
@@ -14,7 +15,6 @@ public class MazeGUI extends JFrame {
     public static final int SCREENWIDTH = 800;
     public static final int SCREENHEIGHT = 829;
     MazeGUIPanel panel;
-
     public MazeGUI() {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(SCREENWIDTH, SCREENHEIGHT);
@@ -25,7 +25,6 @@ public class MazeGUI extends JFrame {
         this.addKeyListener(panel);
         this.setVisible(true);
     }
-
     public static class MazeGUIPanel extends JPanel implements KeyListener, MouseListener, ActionListener {
         private Timer timer;
         private int minLoc = 10;
@@ -41,30 +40,30 @@ public class MazeGUI extends JFrame {
         private int xvel = 3;
         private int yvel = 3;
         private Random r = new Random();
-
+        private static int numClicks = 0; // keeps track of ammo during mini-game stage
         // assets
         private Image astro;
         private Image door;
         private Image alien;
-        private static int numClicks = 0;
         public MazeGUIPanel() {
             this.setPreferredSize(new Dimension(SCREENWIDTH, SCREENHEIGHT));
             this.setBackground(generateColor());
             addMouseListener(this);
+            // set the frame rate for the mini-game loop
             timer = new Timer(10, this);
             timer.start();
-
+            // create and populate arrays of random positions and velocities for the spheres
             xvals = new int[100];
             yvals = new int[100];
             xvelocities = new int[100];
             yvelocities = new int[100];
             populateVals();
-
+            // create the sprites
             astro = new ImageIcon(Objects.requireNonNull(this.getClass().getResource("/images/astro.png"))).getImage();
             door = new ImageIcon(Objects.requireNonNull(this.getClass().getResource("/images/door.png"))).getImage();
             alien = new ImageIcon(Objects.requireNonNull(this.getClass().getResource("/images/alien.png"))).getImage();
         }
-
+        /** Random functions that generate the spheres */
         public int generateVals(int low, int high) {
             return r.nextInt(low, high);
         }
@@ -82,66 +81,61 @@ public class MazeGUI extends JFrame {
             int blue = r.nextInt(0, 255);
             return new Color(red, green, blue);
         }
-        /** take in details from Maze class and render to the Swing Panel */
+        /** Take in details from the Main class and render to the Swing Panel */
         public void paint(Graphics g) {
             super.paint(g);
             Graphics2D g2 = (Graphics2D) g;
             renderGraphics(g2);
         }
         public void renderGraphics(Graphics2D g2) {
-            if (!Main.miniRunning && !Main.isGameOver) {
-                // render player
-                g2.drawImage(astro, playerX, playerY, null);
-                g2.drawImage(door, goalX, goalY, null);
-//                g2.setColor(Color.blue);
-//                g2.fillRect(playerX, playerY, OBJECTDIM, OBJECTDIM);
-//                g2.setColor(Color.white);
-//                g2.fillRect(playerX + OBJECTDIM / 4, playerY + OBJECTDIM / 8, OBJECTDIM / 2, OBJECTDIM / 2);
-                // render goal
-//                g2.setColor(Color.ORANGE);
-//                g2.fillRect(goalX, goalY, OBJECTDIM, OBJECTDIM);
-                // render maze
-                g2.setColor(Color.BLACK);
-                int xPos = 0;
-                int yPos = 29;
-                for (int i = 0; i < Maze.MAZEDIM; i++) {
-                    for (int j = 0; j < Maze.MAZEDIM; j++) {
-                        // screen dims:
-                        // * 0-800
-                        // * 29-839
-                        if (Maze.mazeArr[i][j].equals("X")) {
-                            g2.fillRect(xPos, yPos, OBJECTDIM, OBJECTDIM);
+            switch (Main.currentLevel) {
+                case 0:
+                    // MAZE STAGE
+                    // render player
+                    g2.drawImage(astro, playerX, playerY, null);
+                    g2.drawImage(door, goalX, goalY, null);
+                    // render maze
+                    g2.setColor(Color.BLACK);
+                    int xPos = 0;
+                    int yPos = 29;
+                    // screen dims:
+                    // * 0-800
+                    // * 29-839
+                    for (int i = 0; i < Maze.MAZEDIM; i++) {
+                        for (int j = 0; j < Maze.MAZEDIM; j++) {
+                            if (Maze.mazeArr[i][j].equals("X")) {
+                                g2.fillRect(xPos, yPos, OBJECTDIM, OBJECTDIM);
+                            }
+                            xPos += 40;
                         }
-                        xPos += 40;
+                        xPos = 0;
+                        yPos += 40;
                     }
-                    xPos = 0;
-                    yPos += 40;
-                }
-            } else if (Main.miniRunning && !Main.isGameOver) {
-                this.removeAll();
-                revalidate();
-                g2.drawImage(alien, x, y, null);
-//                g2.setColor(Color.blue);
-//                g2.fillOval(x, y, 50, 50);
-                for (int i = 0; i < 50; i++) {
+                    break;
+                case 1:
+                    // MINI-GAME STAGE
+                    this.removeAll();
+                    revalidate();
+                    g2.drawImage(alien, x, y, null);
+                    for (int i = 0; i < 50; i++) {
+                        g2.setColor(generateColor());
+                        g2.fillOval(xvals[i], yvals[i], 50, 50);
+                    }
+                    break;
+                case 2:
+                    // GAME OVER
+                    this.removeAll();
+                    revalidate();
                     g2.setColor(generateColor());
-                    g2.fillOval(xvals[i], yvals[i], 50, 50);
-                }
-            } else {
-                this.removeAll();
-                revalidate();
-                g2.setColor(generateColor());
-                g2.drawString("CONGRATULATIONS!", 20, 20);
-                g2.drawImage(astro, 300, 350, null);
-//                g2.setColor(Color.blue);
-//                g2.fillOval(x, y, 50, 50);
-                for (int i = 0; i < 100; i++) {
-                    g2.setColor(generateColor());
-                    g2.fillOval(xvals[i], yvals[i], generateVals(5, 50), generateVals(5, 50));
-                }
+                    g2.drawString("CONGRATULATIONS!", 20, 20);
+                    g2.drawImage(astro, 300, 350, null);
+                    for (int i = 0; i < 100; i++) {
+                        g2.setColor(generateColor());
+                        g2.fillOval(xvals[i], yvals[i], generateVals(5, 50), generateVals(5, 50));
+                    }
+                    break;
             }
         }
-
         /** returns the direction in a String given a keycode */
         private String getDirection(int code) {
             return switch (code) {
@@ -152,14 +146,10 @@ public class MazeGUI extends JFrame {
                 default -> null;
             };
         }
-        @Override
-        public void keyTyped(KeyEvent e) {}
-        @Override
-        public void keyPressed(KeyEvent e) {}
+        /** The main movement handler for the Maze portion of the game */
         @Override
         public void keyReleased(KeyEvent e) {
-            // System.out.println("Key pressed: " + getDirection(e.getKeyCode()));
-            if (Maze.runningMaze) {
+            if (Main.currentLevel == 0) {
                 // update player position based on input
                 switch (getDirection(e.getKeyCode())) {
                     case "RIGHT":
@@ -183,38 +173,26 @@ public class MazeGUI extends JFrame {
                 }
             }
         }
-        @Override
-        public void mouseClicked(MouseEvent e) {
-        }
-
+        /** Mouse handler that enables shooting or losing when fighting the alien */
         @Override
         public void mousePressed(MouseEvent e) {
+            // if the alien is clicked, go back to the maze where you left off
             if (e.getX() > x && e.getX() < x + 50 && e.getY() > y && e.getY() < y + 50) {
-                Main.miniRunning = false;
+                Main.currentLevel = 0;
                 numClicks = 0;
             }
-            numClicks++;
-            if (numClicks >= 3) {
-                Main.miniRunning = false;
-                Maze maze = new Maze();
-                numClicks = 0;
+            // if in the mini-game, and you run out of ammo, generate a new maze and start over
+            // note that the stage number does not decrease
+            if (Main.currentLevel == 1) {
+                numClicks++;
+                if (numClicks >= 3) {
+                    Main.currentLevel = 0;
+                    Maze maze = new Maze();
+                    numClicks = 0;
+                }
             }
         }
-
-        @Override
-        public void mouseReleased(MouseEvent e) {
-
-        }
-
-        @Override
-        public void mouseEntered(MouseEvent e) {
-
-        }
-
-        @Override
-        public void mouseExited(MouseEvent e) {
-
-        }
+        /** The mini-game game loop that runs every 10 milliseconds */
         @Override
         public void actionPerformed(ActionEvent e) {
             for (int i = 0; i < 50; i++) {
@@ -237,5 +215,18 @@ public class MazeGUI extends JFrame {
             y = y + yvel;
             repaint();
         }
+        /** Unused inherited methods */
+        @Override
+        public void keyTyped(KeyEvent e) {}
+        @Override
+        public void keyPressed(KeyEvent e) {}
+        @Override
+        public void mouseClicked(MouseEvent e) {}
+        @Override
+        public void mouseReleased(MouseEvent e) {}
+        @Override
+        public void mouseEntered(MouseEvent e) {}
+        @Override
+        public void mouseExited(MouseEvent e) {}
     }
 }

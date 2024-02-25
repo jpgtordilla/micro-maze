@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="MicroMazeSpaceAdventure:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/MicroMazeSpaceAdventure_jar</output-path>
+    <root id="archive" name="MazeGame.jar">
+      <element id="module-output" name="MazeGame" />
+    </root>
+  </artifact>
+</component>

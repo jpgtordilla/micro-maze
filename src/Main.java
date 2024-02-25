@@ -1,73 +1,46 @@
+import java.util.Random;
 /** Main class
  * Initialize how many levels and set level counter
  * Loop which contains the level handler
  * Calls an updateCurrentLevel() method in the Maze class which handles player position on Keyup
  */
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.util.Random;
-import java.util.Scanner;
-
 public class Main {
-    public static int totalLevels;
-    public static int levelCounter;
-    public static boolean isGameOver;
+    public static int totalStages;
+    public static int stageCounter;
     public static boolean running;
     public static Maze maze;
     public static MazeGUI mazeGraphics;
-    public static boolean miniRunning = false;
-
+    public static int currentLevel; // maze = 0, mini-game = 1, game over = 2
     /** Initialize a Swing window and start the game */
     public Main() {
-        startGame();
-        mazeGraphics = new MazeGUI(); // GUI instance and input handler
-        isGameOver = false;
-        running = true;
-        totalLevels = 3; // convert next line number to integer
-        levelCounter = 0;
-    }
-
-    /** Set number of levels and the current level */
-    public void startGame() {
-        // initialize levels
         maze = new Maze(); // initialize a new maze
+        mazeGraphics = new MazeGUI(); // GUI instance and input handler
+        currentLevel = 0;
+        totalStages = 5; // convert next line number to integer
+        stageCounter = 0;
+        running = true;
     }
-
     /** Update the maze through the main class and break if closed, continue after game over */
     public void gameLoop() {
-        maze.updateCurrentLevel(); // signals Maze class to update the parameters of its maze instance
-
+        maze.updateCurrentStage(); // signals Maze class to update the parameters of its maze instance
         // use static variables to mirror MazeGUI static references
         if (Maze.numSteps > generateSteps()) {
-            Maze.runningMaze = false;
-            miniRunning = true;
-            // create a MiniGame instance
-            System.out.println("MINI GAME");
-            Maze.runningMaze = true;
+            currentLevel = 1;
             Maze.numSteps = 0;
         }
-
-        if (levelCounter >= totalLevels) {
-            Maze.runningMaze = false;
-            isGameOver = true;
-//            System.exit(0); // kill the program
+        if (stageCounter >= totalStages) {
+            currentLevel = 2;
+            running = false;
         }
     }
-
+    /** Generates how many steps you can take before running into an alien */
     private int generateSteps() {
         Random r = new Random();
         return r.nextInt(10, 20);
     }
-
+    /** The Main method creates an instance of the game and handles the loop logic with a System timer */
     public static void main(String[] args) {
-        // Balls ball = new Balls();
-
-        Main newGame = new Main(); // start a game
+        Main newGame = new Main();
         // run the game loop 60 times per second while the application is open
         long interval = 16670000; // 1/60 of a second in nanoseconds
         // initialize current and previous time at 0

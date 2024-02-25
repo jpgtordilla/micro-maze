@@ -1,4 +1,4 @@
-Outline:
+General Outline:
 * Maze class
     * Generate a 2D maze array parameters of walls, spaces, player, and exit
     * Key presses update player position in O(1)
