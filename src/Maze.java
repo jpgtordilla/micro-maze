@@ -23,7 +23,7 @@ public class Maze {
     public static final int MAZEDIM = 20;
     private final int MINLENGTH = 2;
     private final int MAXLENGTH = 10;
-
+    Random r = new Random();
     public Maze() {
         runningMaze = true;
         mazeArr = new String[MAZEDIM][MAZEDIM];
@@ -194,11 +194,9 @@ public class Maze {
     }
 
     private int generateLineLength() {
-        Random r = new Random();
         return r.nextInt(MINLENGTH, MAXLENGTH + 1);
     }
     private String generateLineDirection() {
-        Random r = new Random();
         String[] directionArray = new String[]{"up", "down", "left", "right"};
         int index = r.nextInt(0, directionArray.length);
         return directionArray[index];
@@ -212,7 +210,6 @@ public class Maze {
         int count = 0;
         while (count < (MAZEDIM * MAZEDIM)) {
             // generate a random start
-            Random r = new Random();
             int randomRow = r.nextInt(0, MAZEDIM);
             int randomCol = r.nextInt(0, MAZEDIM);
             // check if the line intersects with a wall
@@ -258,7 +255,6 @@ public class Maze {
             MazeGUI.playerX = 0;
             MazeGUI.playerY = 29;
             Main.levelCounter++;
-            Maze newMaze = new Maze();
         }
     }
 

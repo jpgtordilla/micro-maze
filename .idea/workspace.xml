@@ -5,11 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c48a8fcc-e0b8-45b1-a3a8-a4154d4fe490" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/Win.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/MazeGame/Balls.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/MazeGame/Balls.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/MazeGame/MazeGUI.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/MazeGame/MazeGUI.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Balls.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Balls.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/MazeGUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/MazeGUI.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/MiniGame.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/MiniGame.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,7 +37,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "Application.Main.executor": "Debug",
+    "Application.Main.executor": "Run",
     "JUnit.Maze.addListItems.executor": "Run",
     "JUnit.Maze.testCreateNewLevelDrawLine.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
@@ -120,5 +118,16 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/Main.java</url>
+          <line>54</line>
+          <option name="timeStamp" value="64" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

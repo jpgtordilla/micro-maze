@@ -52,7 +52,8 @@ public class Main {
         if (Maze.numSteps > 10) {
             Maze.runningMaze = false;
             // create a MiniGame instance
-            MiniGame games = new MiniGame();
+            System.out.println("MINI GAME");
+            Maze.runningMaze = true;
             Maze.numSteps = 0;
         }
 

@@ -19,7 +19,7 @@ public class MazeGUI extends JFrame {
     public MazeGUI() {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(SCREENWIDTH, SCREENHEIGHT);
-        panel = new MazeGUIPanel();
+        panel = new MazeGUIPanel(); // create the panel
         this.add(panel);
         this.pack();
         this.setLocationRelativeTo(null);
