@@ -40,6 +40,21 @@ public class Main {
     /** Update the maze through the main class and break if closed, continue after game over */
     public static void gameLoop() {
         maze.updateCurrentLevel(); // signals Maze class to update the parameters of its maze instance
+
+        // TODO:
+        // - create the Maze GUI
+        // - create bouncing balls mini game (click only the outlier)
+        // - create a catching raindrops mini game (catch only the outlier)
+        // - create a rotating shooter (shoot only the outlier)
+
+        if (Maze.numSteps > 10) {
+            Maze.runningMaze = false;
+            // create a MiniGame instance
+            MiniGame games = new MiniGame();
+            Maze.numSteps = 0;
+            Maze.runningMaze = true;
+        }
+
         if (levelCounter >= totalLevels) {
             isGameOver = true;
         }

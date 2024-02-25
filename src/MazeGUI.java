@@ -28,23 +28,24 @@ public class MazeGUI extends JFrame implements KeyListener {
     @Override
     public void keyReleased(KeyEvent e) {
         // System.out.println("Key pressed: " + getDirection(e.getKeyCode()));
-
-        // update player position based on input
-        switch (getDirection(e.getKeyCode())) {
-            case "RIGHT":
-                Maze.handleMovement("RIGHT");
-                break;
-            case "LEFT":
-                Maze.handleMovement("LEFT");
-                break;
-            case "UP":
-                Maze.handleMovement("UP");
-                break;
-            case "DOWN":
-                Maze.handleMovement("DOWN");
-                break;
-            default:
-                break;
+        if (Maze.runningMaze) {
+            // update player position based on input
+            switch (getDirection(e.getKeyCode())) {
+                case "RIGHT":
+                    Maze.handleMovement("RIGHT");
+                    break;
+                case "LEFT":
+                    Maze.handleMovement("LEFT");
+                    break;
+                case "UP":
+                    Maze.handleMovement("UP");
+                    break;
+                case "DOWN":
+                    Maze.handleMovement("DOWN");
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }

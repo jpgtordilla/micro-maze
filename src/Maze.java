@@ -17,6 +17,8 @@ public class Maze {
     private int endPos;
     private Set<Integer> usedCoordinates;
     private int EMPTYSPACES;
+    public static int numSteps;
+    public static boolean runningMaze;
 
     // constants
     public static final int MAZEDIM = 20;
@@ -24,12 +26,14 @@ public class Maze {
     private final int MAXLENGTH = 10;
 
     public Maze() {
+        runningMaze = true;
         mazeArr = new String[MAZEDIM][MAZEDIM];
         for (int i = 0; i < MAZEDIM; i++) {
             for (int j = 0; j < MAZEDIM; j++) {
                 mazeArr[i][j] = "-";
             }
         }
+        numSteps = 0;
         playerPos = 0; // player starts in top left
         endPos = MAZEDIM * MAZEDIM - 1; // end is at bottom right
         usedCoordinates = new HashSet<>();
@@ -275,24 +279,28 @@ public class Maze {
                 // if not in the top row and not blocked by a wall
                 if (playerPos - MAZEDIM >= 0 && !isBlocked("UP")) {
                     step -= MAZEDIM;
+                    numSteps++;
                 }
                 break;
             case "DOWN":
                 // if not in the bottom row and not blocked by a wall
                 if (playerPos + MAZEDIM < (MAZEDIM * MAZEDIM) && !isBlocked("DOWN")) {
                     step += MAZEDIM;
+                    numSteps++;
                 }
                 break;
             case "RIGHT":
                 // in the case of 5x5: (4 + 1) % 5 == 0
                 if ((playerPos + 1) % MAZEDIM != 0 && !isBlocked("RIGHT")) { // if not in right column
                     step += 1;
+                    numSteps++;
                 }
                 break;
             case "LEFT":
                 // in the case of 5x5: 5 / 5 = 1
                 if (playerPos % MAZEDIM != 0 && !isBlocked("LEFT")) { // if not in left column
                     step -= 1;
+                    numSteps++;
                 }
                 break;
             default:
