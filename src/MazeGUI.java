@@ -1,13 +1,14 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Objects;
 import java.util.Random;
 
 public class MazeGUI extends JFrame {
-    public static int playerX = 0;
+    public static int playerX = 5;
     public static int playerY = 29;
     public static final int OBJECTDIM = 40;
-    public static final int goalX = 760;
+    public static final int goalX = 750;
     public static final int goalY = 789;
     // constants
     public static final int SCREENWIDTH = 800;
@@ -40,6 +41,11 @@ public class MazeGUI extends JFrame {
         private int xvel = 3;
         private int yvel = 3;
         private Random r = new Random();
+
+        // assets
+        private Image astro;
+        private Image door;
+        private Image alien;
         private int numClicks = 0;
         public MazeGUIPanel() {
             this.setPreferredSize(new Dimension(SCREENWIDTH, SCREENHEIGHT));
@@ -53,6 +59,10 @@ public class MazeGUI extends JFrame {
             xvelocities = new int[50];
             yvelocities = new int[50];
             populateVals();
+
+            astro = new ImageIcon(Objects.requireNonNull(this.getClass().getResource("/images/astro.png"))).getImage();
+            door = new ImageIcon(Objects.requireNonNull(this.getClass().getResource("/images/door.png"))).getImage();
+            alien = new ImageIcon(Objects.requireNonNull(this.getClass().getResource("/images/alien.png"))).getImage();
         }
 
         public int generateVals(int low, int high) {
@@ -76,18 +86,20 @@ public class MazeGUI extends JFrame {
         public void paint(Graphics g) {
             super.paint(g);
             Graphics2D g2 = (Graphics2D) g;
-            renderArray(g2);
+            renderGraphics(g2);
         }
-        public void renderArray(Graphics2D g2) {
+        public void renderGraphics(Graphics2D g2) {
             if (!Main.miniRunning) {
                 // render player
-                g2.setColor(Color.blue);
-                g2.fillRect(playerX, playerY, OBJECTDIM, OBJECTDIM);
-                g2.setColor(Color.white);
-                g2.fillRect(playerX + OBJECTDIM / 4, playerY + OBJECTDIM / 8, OBJECTDIM / 2, OBJECTDIM / 2);
+                g2.drawImage(astro, playerX, playerY, null);
+                g2.drawImage(door, goalX, goalY, null);
+//                g2.setColor(Color.blue);
+//                g2.fillRect(playerX, playerY, OBJECTDIM, OBJECTDIM);
+//                g2.setColor(Color.white);
+//                g2.fillRect(playerX + OBJECTDIM / 4, playerY + OBJECTDIM / 8, OBJECTDIM / 2, OBJECTDIM / 2);
                 // render goal
-                g2.setColor(Color.ORANGE);
-                g2.fillRect(goalX, goalY, OBJECTDIM, OBJECTDIM);
+//                g2.setColor(Color.ORANGE);
+//                g2.fillRect(goalX, goalY, OBJECTDIM, OBJECTDIM);
                 // render maze
                 g2.setColor(Color.BLACK);
                 int xPos = 0;
@@ -108,8 +120,9 @@ public class MazeGUI extends JFrame {
             } else {
                 this.removeAll();
                 revalidate();
-                g2.setColor(Color.blue);
-                g2.fillOval(x, y, 50, 50);
+                g2.drawImage(alien, x, y, null);
+//                g2.setColor(Color.blue);
+//                g2.fillOval(x, y, 50, 50);
                 for (int i = 0; i < 50; i++) {
                     g2.setColor(generateColor());
                     g2.fillOval(xvals[i], yvals[i], 50, 50);
