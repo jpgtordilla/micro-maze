@@ -1,6 +1,8 @@
 import org.junit.jupiter.api.Test;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 /** Maze class
  * Generate a 2D maze array parameters of walls, spaces, player, and exit
@@ -23,7 +25,7 @@ public class Maze {
     public static final int MAZEDIM = 20;
     private final int MINLENGTH = 2;
     private final int MAXLENGTH = 10;
-    Random r = new Random();
+    private Random r = new Random();
     public Maze() {
         runningMaze = true;
         mazeArr = new String[MAZEDIM][MAZEDIM];
@@ -249,11 +251,12 @@ public class Maze {
         }
         return null; // if no potential start point exists
     }
-    public static void updateCurrentLevel() {
-        if (mazeArr[MAZEDIM -1][MAZEDIM -1].equals("P")) {
+    public void updateCurrentLevel() {
+        if (mazeArr[MAZEDIM - 1][MAZEDIM - 1].equals("P")) {
+            mazeArr[MAZEDIM - 1][MAZEDIM - 1] = "G";
+            Maze maze = new Maze();
+            maze.createNewLevel();
             playerPos = 0;
-            MazeGUI.playerX = 0;
-            MazeGUI.playerY = 29;
             Main.levelCounter++;
         }
     }

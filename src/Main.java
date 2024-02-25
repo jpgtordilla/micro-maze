@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.Random;
 import java.util.Scanner;
 
 public class Main {
@@ -19,6 +20,7 @@ public class Main {
     public static boolean running;
     public static Maze maze;
     public static MazeGUI mazeGraphics;
+    public static boolean miniRunning = false;
 
     /** Initialize a Swing window and start the game */
     public Main() {
@@ -26,22 +28,19 @@ public class Main {
         mazeGraphics = new MazeGUI(); // GUI instance and input handler
         isGameOver = false;
         running = true;
+        totalLevels = 3; // convert next line number to integer
+        levelCounter = 0;
     }
 
     /** Set number of levels and the current level */
     public void startGame() {
         // initialize levels
-        Scanner sc = new Scanner(System.in);
-        System.out.println("How many levels?");
-        totalLevels = Integer.parseInt(sc.nextLine()); // convert next line number to integer
-        System.out.println("You have selected " + totalLevels + " levels.");
-        levelCounter = 0;
         maze = new Maze(); // initialize a new maze
     }
 
     /** Update the maze through the main class and break if closed, continue after game over */
     public void gameLoop() {
-        Maze.updateCurrentLevel(); // signals Maze class to update the parameters of its maze instance
+        maze.updateCurrentLevel(); // signals Maze class to update the parameters of its maze instance
         // TODO:
         // - create the Maze GUI
         // - create bouncing balls mini game (click only the outlier)
@@ -49,8 +48,9 @@ public class Main {
         // - create a rotating shooter (shoot only the outlier)
 
         // use static variables to mirror MazeGUI static references
-        if (Maze.numSteps > 10) {
+        if (Maze.numSteps > generateSteps()) {
             Maze.runningMaze = false;
+            miniRunning = true;
             // create a MiniGame instance
             System.out.println("MINI GAME");
             Maze.runningMaze = true;
@@ -58,13 +58,14 @@ public class Main {
         }
 
         if (levelCounter >= totalLevels) {
-            isGameOver = true;
+            running = false;
             System.exit(0); // kill the program
         }
-        // if the game is over or if closed, end the game
-        if (isGameOver || JFrame.EXIT_ON_CLOSE != 3) {
-            running = false;
-        }
+    }
+
+    private int generateSteps() {
+        Random r = new Random();
+        return r.nextInt(10, 20);
     }
 
     public static void main(String[] args) {
