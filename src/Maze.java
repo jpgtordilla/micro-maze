@@ -11,16 +11,21 @@ import java.util.*;
  * If the player is at the exit position, regenerate the maze, reset the player, and reset the steps
  */
 
+/* TODO:
+ * render to the terminal and create input handler to move character around
+ */
+
 public class Maze {
     private String[][] mazeArr;
-    private int[] playerPos;
-    private int[] endPos;
+    private int playerPos;
+    private int endPos;
+    private Set<Integer> usedCoordinates;
+    private int EMPTYSPACES;
 
     // constants
     private int MAZEDIM = 20;
+    private int MINLENGTH = 2;
     private int MAXLENGTH = 10;
-    int EMPTYSPACES = 400;
-    int SPACETHRESHOLD = 100;
 
     public Maze() {
         mazeArr = new String[MAZEDIM][MAZEDIM];
@@ -29,9 +34,39 @@ public class Maze {
                 mazeArr[i][j] = "-";
             }
         }
-        playerPos = new int[]{0, 0}; // player starts in top left
-        endPos = new int[]{MAZEDIM - 1, MAZEDIM - 1}; // end is at bottom right
+        playerPos = 0; // player starts in top left
+        endPos = MAZEDIM * MAZEDIM - 1; // end is at bottom right
+        usedCoordinates = new HashSet<>();
+        usedCoordinates.add(0);
+        usedCoordinates.add(1);
+        usedCoordinates.add(MAZEDIM);
+        usedCoordinates.add((MAZEDIM * MAZEDIM) - 1);
+        EMPTYSPACES = (MAZEDIM * MAZEDIM) - 2;
+
+        // create a new level and stores player position
+        createNewLevel();
     }
+
+    /** converts from grid coordinates to digits
+     * 0, 0 --> 0 */
+    private int coordsToDigits(ArrayList<Integer> coords) {
+        int row = coords.getFirst();
+        int col = coords.getLast();
+        return (row * MAZEDIM) + col;
+    }
+
+    /** converts from digits to grid coordinates
+     * 0 --> 0, 0 */
+    private ArrayList<Integer> digitsToCoords(int digit) {
+        // digit = row * MAZEDIM + col
+        // for a grid of 5x5:
+        // 23 % 5 = 3 --> col
+        // 23 / 5 = 4; --> row
+        int col = digit % MAZEDIM;
+        int row = digit / MAZEDIM;
+        return new ArrayList<>(List.of(row, col));
+    }
+
     /** generates a maze that can navigated by the player */
     private void createNewLevel() {
         // add player and goal
@@ -43,60 +78,35 @@ public class Maze {
         // - never generate lines longer than a certain length
         // - never generate a line that intersects with (0, 0) or (19, 19)
 
-        // maze algorithm O(N^2)
+        // maze algorithm
         // - store a set of coordinates that a line cannot intersect
         // - generate a line length
         // - generate a line direction
         // - generate a starting point
-        //      - recursive method, re-run if generated point or projected line is already is in set of coordinates
+        //      - iterative, re-run if generated point or projected line is already is in set of coordinates
         //      - on base case, update the set of coordinates (any point at/adjacent to line, except in the direction)
         // - create the line
         //      - depending on the direction, update the array and the set of coordinates
         // - repeat until empty spaces < some threshold
 
-        Set<List<Integer>> usedCoordinates = new HashSet<>();
-        // TODO:
-        // - fill in generateLineLength()
-        // - fill in generateLineDirection()
-        // - fill in
-
         // draw a new line on each iteration until the maze is sufficiently full
-        while (EMPTYSPACES > SPACETHRESHOLD) {
+        while (EMPTYSPACES > 0) {
             int lineLength = generateLineLength();
             String lineDirection = generateLineDirection();
-            ArrayList<Integer> lineStart = generateLineStart();
-
+            ArrayList<Integer> lineStart = generateLineStart(lineLength, lineDirection);
+            if (lineStart == null) {
+                break;
+            }
             // update 2D array with start point and add to usedCoordinates
             int startCol = lineStart.getLast(); // col value of starting position
             int startRow = lineStart.getFirst(); // row value of starting position
             mazeArr[startRow][startCol] = "X";
-            usedCoordinates.add(lineStart);
-            EMPTYSPACES--;
             // determine which way to draw the line
-            int xDirection; // how much to change X position after each draw to the 2D array
-            int yDirection; // how much to change Y position after each draw to the 2D array
-            switch (lineDirection) {
-                case "up":
-                    yDirection = -1;
-                    xDirection = 0;
-                    break;
-                case "down":
-                    yDirection = 1;
-                    xDirection = 0;
-                    break;
-                case "left":
-                    yDirection = 0;
-                    xDirection = -1;
-                    break;
-                case "right":
-                    yDirection = 0;
-                    xDirection = 1;
-                    break;
-                default:
-                    yDirection = 0;
-                    xDirection = 0;
-                    break;
-            }
+            int xDirection = getDirectionX(lineDirection); // how much to change X position after each draw to the 2D array
+            int yDirection = getDirectionY(lineDirection); // how much to change Y position after each draw to the 2D array
+            // add to used coordinates, as well as the buffer
+            usedCoordinates.add(coordsToDigits(lineStart));
+            EMPTYSPACES--;
             // initialize at the start of the line
             int prevCol = startCol;
             int prevRow = startRow;
@@ -105,30 +115,110 @@ public class Maze {
             while (lineCounter < lineLength) {
                 int currentRow = prevRow + yDirection;
                 int currentCol = prevCol + xDirection;
-                mazeArr[prevRow + yDirection][prevCol + xDirection] = "X"; // draw a wall object
+                mazeArr[currentRow][currentCol] = "X"; // draw a wall object
                 prevCol = currentCol; // update X position
                 prevRow = currentRow; // update Y position
                 // update the used coordinates
+                // also include all surrounding coordinates except in direction of iteration
                 ArrayList<Integer> currentCoordinates = new ArrayList<>(List.of(currentRow, currentCol));
-                usedCoordinates.add(currentCoordinates);
+                usedCoordinates.add(coordsToDigits(currentCoordinates));
                 EMPTYSPACES--;
+                // add the buffer surrounding the current coordinates to ensure a clear path
+                if (yDirection == 0) { // if iterating to the left or right
+                    // add elements above and below
+                    if (currentRow - 1 >= 0) {
+                        usedCoordinates.add(coordsToDigits(new ArrayList<>(List.of(currentRow - 1, currentCol))));
+                    }
+                    if (currentRow + 1 < MAZEDIM) {
+                        usedCoordinates.add(coordsToDigits(new ArrayList<>(List.of(currentRow + 1, currentCol))));
+                    }
+                } else if (xDirection == 0) { // if iterating to the top or bottom
+                    // add elements to the right and left
+                    if (currentCol - 1 >= 0) {
+                        usedCoordinates.add(coordsToDigits(new ArrayList<>(List.of(currentRow, currentCol - 1))));
+                    }
+                    if (currentCol + 1 < MAZEDIM) {
+                        usedCoordinates.add(coordsToDigits(new ArrayList<>(List.of(currentRow, currentCol + 1))));
+                    }
+                }
                 lineCounter++; // move to the next part of the line
             }
         }
     }
 
-    private int generateLineLength() {
-        return 5;
-    }
-    private String generateLineDirection() {
-        return "up";
+    private int getDirectionX(String lineDirection) {
+        return switch (lineDirection) {
+            case "left" -> -1;
+            case "right" -> 1;
+            default -> 0;
+        };
     }
 
-    private ArrayList<Integer> generateLineStart() {
-        return new ArrayList<>(List.of(10, 10));
+    private int getDirectionY(String lineDirection) {
+        return switch (lineDirection) {
+            case "up" -> -1;
+            case "down" -> 1;
+            default -> 0;
+        };
+    }
+
+    private int generateLineLength() {
+        Random r = new Random();
+        return r.nextInt(MINLENGTH, MAXLENGTH + 1);
+    }
+    private String generateLineDirection() {
+        Random r = new Random();
+        String[] directionArray = new String[]{"up", "down", "left", "right"};
+        int index = r.nextInt(0, directionArray.length);
+        return directionArray[index];
+    }
+
+    private ArrayList<Integer> generateLineStart(int lineLength, String direction) {
+        // determine which way to iterate and check for walls
+        int xDirection = getDirectionX(direction);
+        int yDirection = getDirectionY(direction);
+        // generate a start position, break after a maximum of MAZEDIM x MAZEDIM failures
+        int count = 0;
+        while (count < (MAZEDIM * MAZEDIM)) {
+            // generate a random start
+            Random r = new Random();
+            int randomRow = r.nextInt(0, MAZEDIM);
+            int randomCol = r.nextInt(0, MAZEDIM);
+            // check if the line intersects with a wall
+            // if it doesn't return the list of coordinates
+            ArrayList<Integer> startPos = new ArrayList<>();
+            startPos.addLast(randomRow);
+            startPos.addLast(randomCol);
+            if (usedCoordinates.contains(coordsToDigits(startPos))) {
+                continue;
+            }
+            int prevCol = randomCol;
+            int prevRow = randomRow;
+            int lineCounter = 1;
+            while (lineCounter < lineLength) {
+                int currentRow = prevRow + yDirection;
+                int currentCol = prevCol + xDirection;
+                // if a wall exists at this point or out of bounds
+                ArrayList<Integer> currentCoords = new ArrayList<>(List.of(currentRow, currentCol));
+                if (currentRow >= MAZEDIM || currentRow < 0
+                        || currentCol >= MAZEDIM || currentCol < 0
+                    || usedCoordinates.contains(coordsToDigits(currentCoords))) {
+                    break;
+                }
+                prevCol = currentCol; // update X position
+                prevRow = currentRow; // update Y position
+                lineCounter++; // move to the next part of the line
+                if (lineCounter == lineLength) {
+                    return startPos;
+                }
+            }
+            count++;
+        }
+        return null; // if no potential start point exists
     }
     public void updateCurrentLevel() {
-        System.out.println("Updating...");
+        // check for user input to move the player
+        // print out the 2D maze array
     }
 
     /** TESTING */
