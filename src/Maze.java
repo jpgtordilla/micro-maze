@@ -11,21 +11,17 @@ import java.util.*;
  * If the player is at the exit position, regenerate the maze, reset the player, and reset the steps
  */
 
-/* TODO:
- * render to the terminal and create input handler to move character around
- */
-
 public class Maze {
-    private String[][] mazeArr;
-    private int playerPos;
+    private static String[][] mazeArr;
+    private static int playerPos;
     private int endPos;
     private Set<Integer> usedCoordinates;
     private int EMPTYSPACES;
 
     // constants
-    private int MAZEDIM = 20;
-    private int MINLENGTH = 2;
-    private int MAXLENGTH = 10;
+    public static final int MAZEDIM = 20;
+    private final int MINLENGTH = 2;
+    private final int MAXLENGTH = 10;
 
     public Maze() {
         mazeArr = new String[MAZEDIM][MAZEDIM];
@@ -37,6 +33,7 @@ public class Maze {
         playerPos = 0; // player starts in top left
         endPos = MAZEDIM * MAZEDIM - 1; // end is at bottom right
         usedCoordinates = new HashSet<>();
+        // add player and end blocks and their buffers
         usedCoordinates.add(0);
         usedCoordinates.add(1);
         usedCoordinates.add(MAZEDIM);
@@ -45,6 +42,7 @@ public class Maze {
 
         // create a new level and stores player position
         createNewLevel();
+        drawLevel(); // TODO: comment out for final
     }
 
     /** converts from grid coordinates to digits
@@ -57,14 +55,14 @@ public class Maze {
 
     /** converts from digits to grid coordinates
      * 0 --> 0, 0 */
-    private ArrayList<Integer> digitsToCoords(int digit) {
+    private static int[] digitsToCoords(int digit) {
         // digit = row * MAZEDIM + col
         // for a grid of 5x5:
         // 23 % 5 = 3 --> col
         // 23 / 5 = 4; --> row
         int col = digit % MAZEDIM;
         int row = digit / MAZEDIM;
-        return new ArrayList<>(List.of(row, col));
+        return new int[]{row, col};
     }
 
     /** generates a maze that can navigated by the player */
@@ -78,7 +76,7 @@ public class Maze {
         // - never generate lines longer than a certain length
         // - never generate a line that intersects with (0, 0) or (19, 19)
 
-        // maze algorithm
+        // maze algorithm (general pseudocode)
         // - store a set of coordinates that a line cannot intersect
         // - generate a line length
         // - generate a line direction
@@ -106,6 +104,13 @@ public class Maze {
             int yDirection = getDirectionY(lineDirection); // how much to change Y position after each draw to the 2D array
             // add to used coordinates, as well as the buffer
             usedCoordinates.add(coordsToDigits(lineStart));
+            // Adding a pre-buffer
+            if (yDirection == 0) { // if iterating to the left or right
+                // flipped checkAndAdd since adding onto the last node
+                checkAndAdd(false, true, startRow, startCol);
+            } else if (xDirection == 0) { // if iterating to the top or bottom
+                checkAndAdd(true, true, startRow, startCol);
+            }
             EMPTYSPACES--;
             // initialize at the start of the line
             int prevCol = startCol;
@@ -126,22 +131,43 @@ public class Maze {
                 // add the buffer surrounding the current coordinates to ensure a clear path
                 if (yDirection == 0) { // if iterating to the left or right
                     // add elements above and below
-                    if (currentRow - 1 >= 0) {
-                        usedCoordinates.add(coordsToDigits(new ArrayList<>(List.of(currentRow - 1, currentCol))));
-                    }
-                    if (currentRow + 1 < MAZEDIM) {
-                        usedCoordinates.add(coordsToDigits(new ArrayList<>(List.of(currentRow + 1, currentCol))));
-                    }
+                    checkAndAdd(true, false, currentRow, currentCol);
                 } else if (xDirection == 0) { // if iterating to the top or bottom
                     // add elements to the right and left
-                    if (currentCol - 1 >= 0) {
-                        usedCoordinates.add(coordsToDigits(new ArrayList<>(List.of(currentRow, currentCol - 1))));
-                    }
-                    if (currentCol + 1 < MAZEDIM) {
-                        usedCoordinates.add(coordsToDigits(new ArrayList<>(List.of(currentRow, currentCol + 1))));
-                    }
+                    checkAndAdd(false, false, currentRow, currentCol);
                 }
                 lineCounter++; // move to the next part of the line
+                // adding a post-buffer
+                if (lineCounter == lineLength) {
+                    if (yDirection == 0) { // if iterating to the left or right
+                        // flipped checkAndAdd since adding onto the last node
+                        checkAndAdd(false, false, currentRow, currentCol);
+                    } else if (xDirection == 0) { // if iterating to the top or bottom
+                        checkAndAdd(true, false, currentRow, currentCol);
+                    }
+                }
+            }
+        }
+    }
+
+    private void checkAndAdd(boolean inXDirection, boolean flipped, int currentRow, int currentCol) {
+        int inverter = 1;
+        if (flipped) {
+            inverter = -1;
+        }
+        if (inXDirection) {
+            if (currentRow - 1 >= 0) {
+                usedCoordinates.add(coordsToDigits(new ArrayList<>(List.of(currentRow - inverter, currentCol))));
+            }
+            if (currentRow + 1 < MAZEDIM) {
+                usedCoordinates.add(coordsToDigits(new ArrayList<>(List.of(currentRow + inverter, currentCol))));
+            }
+        } else {
+            if (currentCol - 1 >= 0) {
+                usedCoordinates.add(coordsToDigits(new ArrayList<>(List.of(currentRow, currentCol - inverter))));
+            }
+            if (currentCol + 1 < MAZEDIM) {
+                usedCoordinates.add(coordsToDigits(new ArrayList<>(List.of(currentRow, currentCol + inverter))));
             }
         }
     }
@@ -189,7 +215,12 @@ public class Maze {
             ArrayList<Integer> startPos = new ArrayList<>();
             startPos.addLast(randomRow);
             startPos.addLast(randomCol);
-            if (usedCoordinates.contains(coordsToDigits(startPos))) {
+            // check if used coordinates already contains this start position, as well as surrounding blocks
+            if (usedCoordinates.contains(coordsToDigits(startPos))
+                    || usedCoordinates.contains(coordsToDigits(startPos) + 1)
+                    || usedCoordinates.contains(coordsToDigits(startPos) - 1)
+                    || usedCoordinates.contains(coordsToDigits(startPos) + MAZEDIM)
+                    || usedCoordinates.contains(coordsToDigits(startPos) - MAZEDIM)) {
                 continue;
             }
             int prevCol = randomCol;
@@ -217,11 +248,91 @@ public class Maze {
         return null; // if no potential start point exists
     }
     public void updateCurrentLevel() {
-        // check for user input to move the player
-        // print out the 2D maze array
+        if (mazeArr[MAZEDIM -1][MAZEDIM -1].equals("P")) {
+            playerPos = 0;
+            Maze newMaze = new Maze();
+            Main.levelCounter++;
+        }
+    }
+
+    /** prints out the 2D array as a CLI */
+    public static void drawLevel() {
+        for (int i = 0; i < MAZEDIM; i++) {
+            for (int j = 0; j < MAZEDIM; j++) {
+                System.out.print("|" + mazeArr[i][j]);
+                if (j == MAZEDIM - 1) {
+                    System.out.println("|");
+                }
+            }
+        }
+    }
+
+    /** move player in the maze based on key input, feeds into MazeGUI handlers */
+    public static void handleMovement(String direction) {
+        int step = 0;
+        switch (direction) {
+            case "UP":
+                // if not in the top row and not blocked by a wall
+                if (playerPos - MAZEDIM >= 0 && !isBlocked("UP")) {
+                    step -= MAZEDIM;
+                }
+                break;
+            case "DOWN":
+                // if not in the bottom row and not blocked by a wall
+                if (playerPos + MAZEDIM < (MAZEDIM * MAZEDIM) && !isBlocked("DOWN")) {
+                    step += MAZEDIM;
+                }
+                break;
+            case "RIGHT":
+                // in the case of 5x5: (4 + 1) % 5 == 0
+                if ((playerPos + 1) % MAZEDIM != 0 && !isBlocked("RIGHT")) { // if not in right column
+                    step += 1;
+                }
+                break;
+            case "LEFT":
+                // in the case of 5x5: 5 / 5 = 1
+                if (playerPos % MAZEDIM != 0 && !isBlocked("LEFT")) { // if not in left column
+                    step -= 1;
+                }
+                break;
+            default:
+                break;
+        }
+        int[] playerPosition = digitsToCoords(playerPos);
+        mazeArr[playerPosition[0]][playerPosition[1]] = "-"; // erase old player marker
+        playerPos = playerPos + step; // update player position
+        playerPosition = digitsToCoords(playerPos); // get new position
+        mazeArr[playerPosition[0]][playerPosition[1]] = "P"; // draw new player marker
+        drawLevel();
+    }
+
+    private static boolean isBlocked(String direction) {
+        int step = 0;
+        switch (direction) {
+            case "UP":
+                step -= MAZEDIM;
+                break;
+            case "DOWN":
+                step += MAZEDIM;
+                break;
+            case "RIGHT":
+                step += 1;
+                break;
+            case "LEFT":
+                step -= 1;
+                break;
+            default:
+                break;
+        }
+        int[] coordsToCheck = digitsToCoords(playerPos + step);
+        int row = coordsToCheck[0];
+        int col = coordsToCheck[1];
+        return mazeArr[row][col].equals("X");
     }
 
     /** TESTING */
+
+    /** Testing maze generation */
     @Test
     public void testCreateNewLevelDrawLine() {
         createNewLevel();
