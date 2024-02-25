@@ -31,7 +31,7 @@ public class MazeGUI extends JFrame {
         private int minLoc = 10;
         private int maxLoc = 750;
         private int minVel = 2;
-        private int maxVel = 5;
+        private int maxVel = 7;
         private int[] xvals;
         private int[] yvals;
         private int[] xvelocities;
@@ -46,7 +46,7 @@ public class MazeGUI extends JFrame {
         private Image astro;
         private Image door;
         private Image alien;
-        private int numClicks = 0;
+        private static int numClicks = 0;
         public MazeGUIPanel() {
             this.setPreferredSize(new Dimension(SCREENWIDTH, SCREENHEIGHT));
             this.setBackground(generateColor());
@@ -54,10 +54,10 @@ public class MazeGUI extends JFrame {
             timer = new Timer(10, this);
             timer.start();
 
-            xvals = new int[50];
-            yvals = new int[50];
-            xvelocities = new int[50];
-            yvelocities = new int[50];
+            xvals = new int[100];
+            yvals = new int[100];
+            xvelocities = new int[100];
+            yvelocities = new int[100];
             populateVals();
 
             astro = new ImageIcon(Objects.requireNonNull(this.getClass().getResource("/images/astro.png"))).getImage();
@@ -69,7 +69,7 @@ public class MazeGUI extends JFrame {
             return r.nextInt(low, high);
         }
         public void populateVals() {
-            for (int i = 0; i < 50; i++) {
+            for (int i = 0; i < xvals.length; i++) {
                 xvals[i] = generateVals(minLoc, maxLoc);
                 yvals[i] = generateVals(minLoc, maxLoc);
                 xvelocities[i] = generateVals(minVel, maxVel);
@@ -89,7 +89,7 @@ public class MazeGUI extends JFrame {
             renderGraphics(g2);
         }
         public void renderGraphics(Graphics2D g2) {
-            if (!Main.miniRunning) {
+            if (!Main.miniRunning && !Main.isGameOver) {
                 // render player
                 g2.drawImage(astro, playerX, playerY, null);
                 g2.drawImage(door, goalX, goalY, null);
@@ -117,7 +117,7 @@ public class MazeGUI extends JFrame {
                     xPos = 0;
                     yPos += 40;
                 }
-            } else {
+            } else if (Main.miniRunning && !Main.isGameOver) {
                 this.removeAll();
                 revalidate();
                 g2.drawImage(alien, x, y, null);
@@ -126,6 +126,18 @@ public class MazeGUI extends JFrame {
                 for (int i = 0; i < 50; i++) {
                     g2.setColor(generateColor());
                     g2.fillOval(xvals[i], yvals[i], 50, 50);
+                }
+            } else {
+                this.removeAll();
+                revalidate();
+                g2.setColor(generateColor());
+                g2.drawString("CONGRATULATIONS!", 20, 20);
+                g2.drawImage(astro, 300, 350, null);
+//                g2.setColor(Color.blue);
+//                g2.fillOval(x, y, 50, 50);
+                for (int i = 0; i < 100; i++) {
+                    g2.setColor(generateColor());
+                    g2.fillOval(xvals[i], yvals[i], generateVals(5, 50), generateVals(5, 50));
                 }
             }
         }
@@ -179,11 +191,12 @@ public class MazeGUI extends JFrame {
         public void mousePressed(MouseEvent e) {
             if (e.getX() > x && e.getX() < x + 50 && e.getY() > y && e.getY() < y + 50) {
                 Main.miniRunning = false;
+                numClicks = 0;
             }
             numClicks++;
             if (numClicks >= 3) {
                 Main.miniRunning = false;
-
+                Maze maze = new Maze();
                 numClicks = 0;
             }
         }

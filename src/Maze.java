@@ -47,7 +47,7 @@ public class Maze {
 
         // create a new level and stores player position
         createNewLevel();
-        drawLevel(); // TODO: comment out for final
+        // drawLevel(); // comment in for testing
     }
 
     /** converts from grid coordinates to digits
